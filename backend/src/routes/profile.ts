@@ -1,7 +1,7 @@
 import { Router, type Response } from "express"; // ✅ Kept 'type'
 import bcrypt from "bcrypt";
 import { authenticateToken, type AuthRequest } from "../middleware/auth"; // ✅ Kept 'type'
-import pool from "../db"; // ✅ ADDED { } (Crucial for runtime)
+import {pool} from "../db"; // ✅ ADDED { } (Crucial for runtime)
 
 const router = Router();
 

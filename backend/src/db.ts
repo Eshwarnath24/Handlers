@@ -1,17 +1,20 @@
 import { Pool } from "pg";
+import dotenv from "dotenv";
 
-const pool = new Pool({
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5432,
-  user: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || "my_hackathon_db",
+dotenv.config();
 
-  // ✅ REQUIRED for Render / cloud Postgres
-  ssl:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : false,
+const isProduction = process.env.NODE_ENV === "production";
+
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not defined");
+}
+
+export const pool = new Pool({
+  connectionString,
+  // 🟢 FIX: Enable SSL for cloud databases (Render/Neon/Supabase)
+  ssl: isProduction
+    ? { rejectUnauthorized: false }
+    : false, 
 });
-
-export default pool;

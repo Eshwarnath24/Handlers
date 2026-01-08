@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import pool from "../db"; // ✅ FIXED: Must use curly braces
+import {pool} from "../db"; // ✅ FIXED: Must use curly braces
 
 const router = Router();
 

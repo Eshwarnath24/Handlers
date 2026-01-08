@@ -4,9 +4,9 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
-    "dev": "bun run index.ts",
-    "start": "bun run index.ts"
-  },
+  "dev": "bun run --watch src/server.ts",
+  "start": "bun run src/server.ts"
+},
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
