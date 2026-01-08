@@ -127,23 +127,15 @@ Areas to practise
 9️⃣ Unlocks practice mode based on weaknesses
 
 🔐 Security
-
 JWT stored only in memory
-
 No face/webcam
-
-No clipboard blocking
-
+No clipboard blockin
 Ethical monitoring only (tab events)
 
+
 📈 Why This Project Works
-
 Solves learning integrity
-
 No preloaded question bank → no leaks
-
 Students learn what they don't know
-
 Recruiters trust analytics more than scores
-
 Works with any role & tech stack
