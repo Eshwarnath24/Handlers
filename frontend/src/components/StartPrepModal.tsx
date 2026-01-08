@@ -1,47 +1,47 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Check, ChevronRight, Rocket } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Check, ChevronRight, Rocket } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { useApp } from '@/contexts/AppContext';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { useApp } from "@/contexts/AppContext";
 
 const ROLES = [
-  'Frontend Developer',
-  'Backend Developer',
-  'Full Stack Developer',
-  'DevOps Engineer',
-  'Data Scientist',
-  'Machine Learning Engineer',
-  'Mobile Developer',
-  'QA Engineer',
-  'Security Engineer',
-  'Cloud Architect',
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "DevOps Engineer",
+  "Data Scientist",
+  "Machine Learning Engineer",
+  "Mobile Developer",
+  "QA Engineer",
+  "Security Engineer",
+  "Cloud Architect",
 ];
 
 const TECH_STACK = [
-  { name: 'JavaScript', icon: '🟨' },
-  { name: 'TypeScript', icon: '🔷' },
-  { name: 'React', icon: '⚛️' },
-  { name: 'Vue.js', icon: '💚' },
-  { name: 'Angular', icon: '🔴' },
-  { name: 'Node.js', icon: '💚' },
-  { name: 'Python', icon: '🐍' },
-  { name: 'Java', icon: '☕' },
-  { name: 'Go', icon: '🔵' },
-  { name: 'Rust', icon: '🦀' },
-  { name: 'SQL', icon: '🗃️' },
-  { name: 'MongoDB', icon: '🍃' },
-  { name: 'Docker', icon: '🐳' },
-  { name: 'Kubernetes', icon: '☸️' },
-  { name: 'AWS', icon: '☁️' },
-  { name: 'GraphQL', icon: '◈' },
+  { name: "JavaScript", icon: "🟨" },
+  { name: "TypeScript", icon: "🔷" },
+  { name: "React", icon: "⚛️" },
+  { name: "Vue.js", icon: "💚" },
+  { name: "Angular", icon: "🔴" },
+  { name: "Node.js", icon: "💚" },
+  { name: "Python", icon: "🐍" },
+  { name: "Java", icon: "☕" },
+  { name: "Go", icon: "🔵" },
+  { name: "Rust", icon: "🦀" },
+  { name: "SQL", icon: "🗃️" },
+  { name: "MongoDB", icon: "🍃" },
+  { name: "Docker", icon: "🐳" },
+  { name: "Kubernetes", icon: "☸️" },
+  { name: "AWS", icon: "☁️" },
+  { name: "GraphQL", icon: "◈" },
 ];
 
 interface StartPrepModalProps {
@@ -53,32 +53,64 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
   const navigate = useNavigate();
   const { setCurrentTestConfig } = useApp();
   const [step, setStep] = useState(1);
-  const [roleSearch, setRoleSearch] = useState('');
-  const [selectedRole, setSelectedRole] = useState('');
+  const [roleSearch, setRoleSearch] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
   const [selectedTech, setSelectedTech] = useState<string[]>([]);
 
-  const filteredRoles = ROLES.filter(role =>
+  const filteredRoles = ROLES.filter((role) =>
     role.toLowerCase().includes(roleSearch.toLowerCase())
   );
 
   const handleTechToggle = (tech: string) => {
-    setSelectedTech(prev =>
-      prev.includes(tech)
-        ? prev.filter(t => t !== tech)
-        : [...prev, tech]
+    setSelectedTech((prev) =>
+      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
     );
   };
 
-  const handleStartTest = () => {
-    setCurrentTestConfig({ role: selectedRole, techStack: selectedTech });
-    onOpenChange(false);
-    navigate('/test');
+  const handleStartTest = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role: selectedRole,
+          level: "Junior",
+          languages: selectedTech,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("API failed");
+      }
+
+      const quiz = await res.json();
+
+      setCurrentTestConfig({
+        role: selectedRole,
+        techStack: selectedTech,
+        questions: quiz,
+      });
+
+      console.log("SAVED TO CONTEXT:", {
+        role: selectedRole,
+        techStack: selectedTech,
+        questions: quiz,
+      });
+
+      onOpenChange(false);
+      navigate("/test");
+    } catch (err) {
+      console.error("START TEST ERROR:", err);
+      alert("Failed to generate test");
+    }
   };
 
   const resetAndClose = () => {
     setStep(1);
-    setRoleSearch('');
-    setSelectedRole('');
+    setRoleSearch("");
+    setSelectedRole("");
     setSelectedTech([]);
     onOpenChange(false);
   };
@@ -88,7 +120,7 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
       <DialogContent className="sm:max-w-[500px] glass-panel-elevated">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            {step === 1 ? 'Select Your Target Role' : 'Choose Your Tech Stack'}
+            {step === 1 ? "Select Your Target Role" : "Choose Your Tech Stack"}
           </DialogTitle>
         </DialogHeader>
 
@@ -111,8 +143,8 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
                   onClick={() => setSelectedRole(role)}
                   className={`w-full p-3 rounded-lg text-left transition-all duration-200 flex items-center justify-between ${
                     selectedRole === role
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary hover:bg-secondary/80'
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary hover:bg-secondary/80"
                   }`}
                 >
                   <span>{role}</span>
@@ -143,8 +175,8 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
                   onClick={() => handleTechToggle(name)}
                   className={`p-3 rounded-lg text-left transition-all duration-200 flex items-center gap-2 ${
                     selectedTech.includes(name)
-                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/50'
-                      : 'bg-secondary hover:bg-secondary/80'
+                      ? "bg-primary text-primary-foreground ring-2 ring-primary/50"
+                      : "bg-secondary hover:bg-secondary/80"
                   }`}
                 >
                   <span className="text-lg">{icon}</span>
@@ -165,7 +197,11 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={() => setStep(1)}
+                className="flex-1"
+              >
                 Back
               </Button>
               <Button

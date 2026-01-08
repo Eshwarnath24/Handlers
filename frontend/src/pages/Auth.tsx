@@ -21,15 +21,20 @@ export default function Auth() {
   const location = useLocation();
   const { toast } = useToast();
   const { setUser } = useApp();
+
   const params = new URLSearchParams(location.search);
-  const initialBackView = params.get("slide") === "forgot" ? "forgot" : "signup";
+  const initialBackView =
+    params.get("slide") === "forgot" ? "forgot" : "signup";
   const initialIsFlipped =
-    params.get("slide") === "signup" || (location.state && (location.state as { openSignup?: boolean }).openSignup)
+    params.get("slide") === "signup" ||
+    (location.state && (location.state as { openSignup?: boolean }).openSignup)
       ? true
       : false;
 
   const [isFlipped, setIsFlipped] = useState(initialIsFlipped);
-  const [backView, setBackView] = useState<"signup" | "forgot">(initialBackView);
+  const [backView, setBackView] = useState<"signup" | "forgot">(
+    initialBackView
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -41,104 +46,46 @@ export default function Auth() {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
 
-    const handleSignIn = async (e: React.FormEvent) => {
+  /* ======================
+     BACKEND REMOVED ONLY
+     ====================== */
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const res = await fetch("http://localhost:3000/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: signInEmail,
-          password: signInPassword,
-        }),
-      });
+    await new Promise((r) => setTimeout(r, 500));
 
-      const data = await res.json();
+    setUser({
+      id: crypto.randomUUID(),
+      name: signInEmail.split("@")[0],
+      email: signInEmail,
+    });
 
-      if (!res.ok) {
-        toast({
-          title: "Signin failed",
-          description: data.error || "Invalid credentials",
-          variant: "destructive",
-        });
-        return;
-      }
+    toast({
+      title: "Welcome back!",
+      description: "Signed in successfully.",
+    });
 
-      // 🔑 Store JWT
-      localStorage.setItem("token", data.token);
-
-      // Optional app state
-      setUser({
-        id: data.userId ?? crypto.randomUUID(),
-        name: signInEmail.split("@")[0],
-        email: signInEmail,
-      });
-
-      toast({
-        title: "Welcome back!",
-        description: "Successfully signed in.",
-      });
-
-      navigate("/dashboard");
-    } catch (err) {
-      toast({
-        title: "Network error",
-        description: "Backend not reachable",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(false);
+    navigate("/dashboard");
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const res = await fetch("http://localhost:3000/auth/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: signUpEmail,
-        password: signUpPassword,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      toast({
-        title: "Signup failed",
-        description: data.error || "Could not create account",
-        variant: "destructive",
-      });
-      return;
-    }
+    await new Promise((r) => setTimeout(r, 500));
 
     toast({
       title: "Account created!",
       description: "You can now sign in.",
     });
 
-    // Flip back to signin
-    setIsFlipped(false);
-  } catch (err) {
-    toast({
-      title: "Network error",
-      description: "Backend not reachable",
-      variant: "destructive",
-    });
-  } finally {
     setIsLoading(false);
-  }
-};
+    setIsFlipped(false);
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       {/* Theme Toggle */}
@@ -170,7 +117,7 @@ export default function Auth() {
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signin-email"
                       type="email"
@@ -249,7 +196,9 @@ export default function Auth() {
             <div className="hidden md:flex gradient-bg items-center justify-center p-12">
               <div className="text-center text-primary-foreground">
                 <Sparkles className="h-16 w-16 mx-auto mb-6 animate-pulse-slow" />
-                <h2 className="text-2xl font-bold mb-4">Ace Your Interviews</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  Ace Your Interviews
+                </h2>
                 <p className="opacity-90 max-w-xs">
                   Practice with real-world questions tailored to your target
                   role and tech stack.
@@ -277,7 +226,7 @@ export default function Auth() {
               </div>
             </div>
 
-            {/* Right - Form (signup or forgot) */}
+            {/* Right - Form */}
             <div className="glass-panel-elevated p-8 md:p-12 flex flex-col justify-center">
               {backView === "signup" ? (
                 <>
@@ -294,7 +243,7 @@ export default function Auth() {
                     <div className="space-y-2">
                       <Label htmlFor="signup-name">Full Name</Label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="signup-name"
                           type="text"
@@ -309,7 +258,7 @@ export default function Auth() {
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="signup-email"
                           type="email"
@@ -322,10 +271,10 @@ export default function Auth() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
+                      <Label htmlFor="signup-password">Password</Label>
                       <div className="relative">
                         <Input
-                          id="signin-password"
+                          id="signup-password"
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           value={signUpPassword}
@@ -352,7 +301,9 @@ export default function Auth() {
                       className="w-full gradient-bg"
                       disabled={isLoading}
                     >
-                      {isLoading ? "Creating account..." : "Create Account"}
+                      {isLoading
+                        ? "Creating account..."
+                        : "Create Account"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </form>
@@ -406,7 +357,7 @@ export default function Auth() {
                     <div className="space-y-2">
                       <Label htmlFor="reset-email">Email</Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="reset-email"
                           type="email"

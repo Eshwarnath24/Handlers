@@ -3,8 +3,13 @@ import healthRouter from "./routes/health";
 import authRouter from "./routes/auth";
 import profileRouter from "./routes/profile";
 import cors from "cors";
+import dotenv from "dotenv";
+import quizRouter from "./routes/quiz";
+
 
 console.log("🔥 server.ts started");
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -19,6 +24,8 @@ app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 
 
+
+app.use("/api/quiz", quizRouter);
 
 const PORT = 3000;
 
