@@ -3,6 +3,8 @@ services:
     image: postgres:16
     container_name: my_app_db
     restart: unless-stopped
+    env_file:
+      - .env.docker
     environment:
       POSTGRES_DB: my_app
       POSTGRES_USER: myapp_user
@@ -17,13 +19,8 @@ services:
     build: ./backend
     container_name: my_app_backend
     restart: unless-stopped
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: myapp_user
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: my_app
-      JWT_SECRET: ${JWT_SECRET}
+    env_file:
+      - .env.docker
     depends_on:
       - postgres
     ports:

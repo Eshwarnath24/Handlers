@@ -35,5 +35,5 @@
   },
   // --- ADD THIS SECTION ---
   // This tells TypeScript to compile everything inside the src folder
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../frontend/src/contexts/profile.ts", "../frontend/src/components/ProtectedRoute.tsx"]
 }

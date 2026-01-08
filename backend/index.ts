@@ -1,2 +1,2 @@
 import "./src/server";
-console.log("🔥 server.ts started");
+import "./db";        // DB connects once

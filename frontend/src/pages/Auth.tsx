@@ -13,14 +13,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext"; // ✅ Fixed import
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+<<<<<<< Updated upstream
   const { setUser } = useApp();
+=======
+  
+  // ✅ Use the auth context methods
+  const { login, signup } = useAuth();
+>>>>>>> Stashed changes
 
   const params = new URLSearchParams(location.search);
   const initialBackView =
@@ -46,6 +52,7 @@ export default function Auth() {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
 
+<<<<<<< Updated upstream
   /* ======================
      BACKEND REMOVED ONLY
      ====================== */
@@ -76,15 +83,63 @@ export default function Auth() {
     setIsLoading(true);
 
     await new Promise((r) => setTimeout(r, 500));
+=======
+  const handleSignIn = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  try {
+    await login(signInEmail, signInPassword);
+>>>>>>> Stashed changes
 
     toast({
-      title: "Account created!",
-      description: "You can now sign in.",
+      title: "Welcome back!",
+      description: "Successfully signed in.",
     });
 
+<<<<<<< Updated upstream
     setIsLoading(false);
     setIsFlipped(false);
   };
+=======
+    navigate("/dashboard");
+  } catch (err: any) {
+    toast({
+      title: "Signin failed",
+      description: err.message || "Invalid credentials",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  const handleSignUp = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  try {
+    await signup(signUpName, signUpEmail, signUpPassword);
+
+    toast({
+      title: "Account created!",
+      description: "You are now signed in.",
+    });
+
+    navigate("/dashboard");
+  } catch (err: any) {
+    toast({
+      title: "Signup failed",
+      description: err.message || "Could not create account",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+>>>>>>> Stashed changes
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -274,7 +329,11 @@ export default function Auth() {
                       <Label htmlFor="signup-password">Password</Label>
                       <div className="relative">
                         <Input
+<<<<<<< Updated upstream
                           id="signup-password"
+=======
+                          id="signup-password" // fixed ID mismatch
+>>>>>>> Stashed changes
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           value={signUpPassword}

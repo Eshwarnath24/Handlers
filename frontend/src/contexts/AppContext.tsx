@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import React, {
   createContext,
   useContext,
@@ -5,7 +6,12 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+=======
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from './AuthContext'; // ✅ Import Auth Hook
+>>>>>>> Stashed changes
 
+// Align generic User type if possible, or keep simple for UI
 interface User {
   id: string;
   name: string;
@@ -52,8 +58,8 @@ interface TestAttempt {
 }
 
 interface AppContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: User | null; // Derived from AuthContext
+  setUser: (user: User | null) => void; // Warning: Prefer useAuth().updateUser
   isAuthenticated: boolean;
 
   testAttempts: TestAttempt[];
@@ -73,10 +79,15 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+<<<<<<< Updated upstream
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem("truemetric_user");
     return saved ? JSON.parse(saved) : null;
   });
+=======
+  // ✅ LINKED: Get user from the real Auth source
+  const { user: authUser, isAuthenticated } = useAuth();
+>>>>>>> Stashed changes
 
   const [testAttempts, setTestAttempts] = useState<TestAttempt[]>(() => {
     const saved = localStorage.getItem("truemetric_attempts");
@@ -94,11 +105,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
   useEffect(() => {
+<<<<<<< Updated upstream
     localStorage.setItem("truemetric_user", JSON.stringify(user));
   }, [user]);
 
   useEffect(() => {
     localStorage.setItem("truemetric_attempts", JSON.stringify(testAttempts));
+=======
+    localStorage.setItem('truemetric_attempts', JSON.stringify(testAttempts));
+>>>>>>> Stashed changes
   }, [testAttempts]);
 
   useEffect(() => {
@@ -123,6 +138,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   return (
+<<<<<<< Updated upstream
     <AppContext.Provider
       value={{
         user,
@@ -139,6 +155,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         resetTabSwitch,
       }}
     >
+=======
+    <AppContext.Provider value={{
+      user: authUser, // ✅ Derived from AuthContext
+      setUser: () => console.warn("Use useAuth().updateUser instead"),
+      isAuthenticated,
+      testAttempts,
+      addTestAttempt,
+      currentTestConfig,
+      setCurrentTestConfig,
+      theme,
+      toggleTheme,
+      tabSwitchCount,
+      incrementTabSwitch,
+      resetTabSwitch,
+    }}>
+>>>>>>> Stashed changes
       {children}
     </AppContext.Provider>
   );

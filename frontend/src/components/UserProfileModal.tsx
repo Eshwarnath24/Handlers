@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Lock, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,33 +18,109 @@ interface UserProfileModalProps {
 }
 
 const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, token } = useAuth();
   const { toast } = useToast();
-  
+
   const [name, setName] = useState(user?.name || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSave = () => {
-    if (name.trim()) {
-      updateUser({ name: name.trim() });
-      toast({ title: "Profile updated", description: "Your name has been updated." });
+  // ✅ Keep local name in sync with auth user
+  useEffect(() => {
+    if (user?.name) {
+      setName(user.name);
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    if (!token) {
+      toast({
+        title: "Session expired",
+        description: "Please log in again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: trimmed }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Update failed");
+
+      updateUser({ name: trimmed });
+      toast({
+        title: "Profile updated",
+        description: "Your name has been updated.",
+      });
       setIsEditing(false);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to update profile",
+        variant: "destructive",
+      });
     }
   };
 
-  const handlePasswordChange = () => {
-    if (newPassword.length >= 6) {
-      // In production, verify current password and update
-      toast({ title: "Password updated", description: "Your password has been changed." });
+  const handlePasswordChange = async () => {
+    if (newPassword.length < 6) {
+      toast({
+        title: "Invalid password",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!token) {
+      toast({
+        title: "Session expired",
+        description: "Please log in again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/auth/password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Password update failed");
+
+      toast({
+        title: "Password updated",
+        description: "Your password has been changed.",
+      });
+
       setCurrentPassword("");
       setNewPassword("");
-    } else {
-      toast({ 
-        title: "Invalid password", 
-        description: "Password must be at least 6 characters.",
-        variant: "destructive"
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to update password",
+        variant: "destructive",
       });
     }
   };
@@ -65,25 +141,33 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
               <Label>Name</Label>
               {isEditing ? (
                 <div className="flex gap-2">
-                  <Input 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
                   />
                   <Button size="icon" onClick={handleSave}>
                     <Save className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="outline" onClick={() => {
-                    setName(user?.name || "");
-                    setIsEditing(false);
-                  }}>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => {
+                      setName(user?.name || "");
+                      setIsEditing(false);
+                    }}
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               ) : (
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
                   <span>{user?.name}</span>
-                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                  >
                     Edit
                   </Button>
                 </div>
@@ -106,9 +190,9 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="current-password">Current Password</Label>
-                <Input 
+                <Input
                   id="current-password"
-                  type="password" 
+                  type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
@@ -116,16 +200,16 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-password">New Password</Label>
-                <Input 
+                <Input
                   id="new-password"
-                  type="password" 
+                  type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
                 />
               </div>
-              <Button 
-                onClick={handlePasswordChange} 
+              <Button
+                onClick={handlePasswordChange}
                 disabled={!currentPassword || !newPassword}
                 className="w-full"
               >

@@ -9,9 +9,10 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
   completeTest: () => void;
@@ -25,6 +26,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem("truemetric-token")
+  );
+
   useEffect(() => {
     if (user) {
       localStorage.setItem("truemetric-user", JSON.stringify(user));
@@ -33,86 +38,88 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulated login - in production, this would call an API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    const savedUsers = JSON.parse(localStorage.getItem("truemetric-users") || "[]");
-    const foundUser = savedUsers.find((u: User & { password: string }) => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      const { password: _, ...userData } = foundUser;
-      setUser(userData);
-      return true;
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("truemetric-token", token);
+    } else {
+      localStorage.removeItem("truemetric-token");
     }
-    return false;
+  }, [token]);
+
+  const login = async (email: string, password: string): Promise<void> => {
+    const res = await fetch("http://localhost:3000/auth/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || "Login failed");
+
+    setToken(data.token);
+    setUser({
+      id: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      hasCompletedTest: data.user.hasCompletedTest ?? false, // Safe default
+    });
   };
 
-  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    const savedUsers = JSON.parse(localStorage.getItem("truemetric-users") || "[]");
-    const exists = savedUsers.some((u: User) => u.email === email);
-    
-    if (exists) return false;
-    
-    const newUser = {
-      id: crypto.randomUUID(),
-      name,
-      email,
-      password,
-      hasCompletedTest: false,
-    };
-    
-    savedUsers.push(newUser);
-    localStorage.setItem("truemetric-users", JSON.stringify(savedUsers));
-    
-    const { password: _, ...userData } = newUser;
-    setUser(userData);
-    return true;
+  const signup = async (name: string, email: string, password: string): Promise<void> => {
+    const res = await fetch("http://localhost:3000/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || "Signup failed");
+
+    // ✅ SEAMLESS FIX: Use the token immediately returned by signup
+    setToken(data.token);
+    setUser({
+      id: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      hasCompletedTest: false, // New users haven't taken the test
+    });
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
+    localStorage.removeItem("truemetric-user");
+    localStorage.removeItem("truemetric-token");
   };
 
   const updateUser = (updates: Partial<User>) => {
-    if (user) {
-      const updated = { ...user, ...updates };
-      setUser(updated);
-      
-      const savedUsers = JSON.parse(localStorage.getItem("truemetric-users") || "[]");
-      const index = savedUsers.findIndex((u: User) => u.id === user.id);
-      if (index >= 0) {
-        savedUsers[index] = { ...savedUsers[index], ...updates };
-        localStorage.setItem("truemetric-users", JSON.stringify(savedUsers));
-      }
-    }
+    setUser((prev) => (prev ? { ...prev, ...updates } : prev));
   };
 
-  const completeTest = () => {
-    updateUser({ hasCompletedTest: true });
-  };
+  const completeTest = () => updateUser({ hasCompletedTest: true });
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated: !!user, 
-      login, 
-      signup, 
-      logout, 
-      updateUser,
-      completeTest 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isAuthenticated: !!token,
+        login,
+        signup,
+        logout,
+        updateUser,
+        completeTest,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 };
