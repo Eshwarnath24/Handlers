@@ -6,14 +6,11 @@ services:
     env_file:
       - .env.docker
     environment:
-      POSTGRES_DB: my_app
+      POSTGRES_DB: my_hackathon_db
       POSTGRES_USER: myapp_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "5432:5432"
 
   backend:
     build: ./backend
@@ -31,7 +28,7 @@ services:
     container_name: my_app_frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://localhost:3000
+      VITE_API_URL: http://backend:3000
     depends_on:
       - backend
     ports:
