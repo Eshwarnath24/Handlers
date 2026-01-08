@@ -1,141 +1,226 @@
-# Handlers
+🚀 TrueMetric (Handlers)
 
+TrueMetric is an AI-driven interview evaluation and skill-gap bridging platform designed to help users identify weaknesses and systematically improve them for real technical interviews.
 
-🎯 TrueMetric — AI-Driven Skill Evaluation that Enforces Integrity
+This repository is a monorepo containing:
 
-TrueMetric is a modern assessment & learning platform designed to measure real understanding, not just completion.
-Instead of static question banks or cheating-prone online quizzes, it creates a secure & personalised testing journey.
+Frontend (Bun-powered)
 
-❓ Problem We Solved
+Backend (Bun-powered APIs)
 
-Current hackathon & learning platforms face these issues:
+Docker-based deployment setup
 
-🚫 Students paste AI answers
-🚫 Same questions reused → zero understanding
-🚫 No way to measure true strengths & weaknesses
-🚫 No guardrails to stop malpractice
+🎯 Problem Statement
 
-This leads to:
+Most interview platforms:
 
-Skill gaps
+❌ Only test users
 
-Bad hiring outcomes
+❌ Don’t explain weaknesses
 
-Poor confidence in learning systems
+❌ Use static questions
 
-🟢 TrueMetric fixes that
+❌ Encourage AI copy-paste learning
 
-Generates fresh role-specific questions using AI (Grok)
+TrueMetric focuses on improvement, not just evaluation.
 
-Mixes MCQs + coding
+🧠 Interview Mode – Skill Gap Bridging (Core Feature)
+What Interview Mode Does
 
-Detects cheating via tab-switch monitoring
+Interview Mode simulates real technical interviews and adapts dynamically based on user responses.
 
-Delays hints to encourage thinking
+It evaluates:
 
-Blocks practice mode until real test attempted
+Concept clarity
 
-Builds personalised upskilling suggestions
+Depth of understanding
 
-🛠 Tech Stack
-Frontend (React + Bun)
-React + Vite
+Partial knowledge
+
+Consistency over time
+
+🔁 Skill Gap Bridging Workflow
+
+Interview Simulation
+
+Concept-based, progressive questions
+
+Time-aware evaluation
+
+Gap Detection
+
+Identifies weak concepts
+
+Detects incomplete understanding
+
+Tracks performance patterns
+
+Targeted Reinforcement
+
+Focused follow-up questions
+
+Repeated testing on weak areas
+
+Adaptive difficulty tuning
+
+Re-Evaluation Loop
+
+Measures improvement
+
+Gradually closes skill gaps
+
+✨ Key Features
+
+🧠 Interview Mode with adaptive difficulty
+
+📉 Automatic skill-gap detection
+
+📈 Skill improvement tracking
+
+🔐 JWT-based authentication
+
+⚡ Fast Bun-powered backend
+
+🌐 API-first architecture
+
+🐳 Docker support
+
+🚫 Reduced AI-assisted cheating
+
+🏗️ Tech Stack
+Frontend
+
+Bun
+
+React
+
 TypeScript
-TailwindCSS + shadcn/ui
-Bun runtime
-Context API state management
-Lucide icons
 
-Backend (Bun + Express)
-Bun Runtime
-ExpressJS API
-PostgreSQL + pg driver
-JWT Authentication
+Tailwind CSS
+
+Backend
+
+Bun
+
+Express.js
+
+TypeScript
+
+PostgreSQL
+
+bcrypt + JWT
+
 dotenv
 
-AI
-Grok API (custom prompt MCQ generation)
-<img width="730" height="722" alt="image" src="https://github.com/user-attachments/assets/a91fd783-75e3-4cc6-bba8-aa0ea7451b6c" />
+DevOps
 
+Docker
 
-🔧 Setup — Backend
+Docker Compose
 
-1️⃣ Install dependencies
+Vercel (Frontend)
+
+Render / similar (Backend & DB)
+
+📁 Repository Structure
+Handlers/
+│
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── config/
+│   │   └── index.ts
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # Reusable UI components
+│   │   ├── context/      # Global app state
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── lib/          # Utilities & helpers
+│   │   └── pages/        # App pages
+│   │
+│   ├── public/
+│   ├── Dockerfile
+│   └── README.md
+│
+├── .env.local
+├── .env.docker
+├── docker-compose.yml
+├── LICENSE
+├── SECURITY.md
+└── README.md
+
+⚙️ Environment Variables
+Backend (.env.local / .env.docker)
+PORT=5000
+DATABASE_URL=postgresql://username:password@host:port/dbname
+JWT_SECRET=your_secret_key
+
+▶️ Running Locally (Without Docker)
+Backend
 cd backend
 bun install
+bun run index.ts
 
-2️⃣ Create .env file in /backend
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASS=password
-DB_NAME=quizdb
-
-JWT_SECRET=super-secret-key
-GROK_API_KEY=your_key_here
-
-3️⃣ Initialise PostgreSQL
-sudo apt install postgresql postgresql-contrib
-sudo service postgresql start
-sudo -u postgres createdb quizdb
-sudo -u postgres psql
-ALTER USER postgres WITH PASSWORD 'password';
-\q
-
-4️⃣ Run backend
-bun run dev
-
-🎨 Setup — Frontend
-Install deps
+Frontend
 cd frontend
 bun install
-
-Run dev
 bun run dev
 
-
-Then open:
-
-http://localhost:5173
-
-🧪 How the System Works
-
-1️⃣ User registers + logs in
-2️⃣ Selects a role
-3️⃣ Chooses role-filtered tech stack (min-3)
-4️⃣ Backend calls Grok AI → generates:
-
-10 MCQs
-
-3 coding questions
-5️⃣ 45-minute test begins
-
-Time tracked in UI
-
-Tab-switch → warning
-
-3 violations → auto submit
-6️⃣ Auto-evaluates MCQ
-7️⃣ Coding marked as answered/unanswered
-8️⃣ Generates personalised report:
-
-Strengths
-
-Weakness clusters
-
-Areas to practise
-9️⃣ Unlocks practice mode based on weaknesses
-
-🔐 Security
-JWT stored only in memory
-No face/webcam
-No clipboard blockin
-Ethical monitoring only (tab events)
+🐳 Running with Docker
+docker-compose up --build
 
 
-📈 Why This Project Works
-Solves learning integrity
-No preloaded question bank → no leaks
-Students learn what they don't know
-Recruiters trust analytics more than scores
-Works with any role & tech stack
+This starts:
+
+Frontend
+
+Backend
+
+Database (if configured)
+
+🌐 Live Deployment
+
+Frontend (Vercel):
+👉 https://handlers-three.vercel.app
+
+🧪 Project Status
+
+✅ Authentication implemented
+
+✅ Database connected
+
+✅ Profile & basic interview flow
+
+🚧 Skill gap analysis logic
+
+🚧 Adaptive interview engine
+
+🚧 AI-powered feedback system
+
+👥 Contributors
+
+This is a collaborative team project.
+
+Gajula Eshwarnath – Backend, system design
+
+Shanmukha Gautam Pidaparthi – Core development
+
+Kurapati Venkata Lakshmi Narasimha Kushal - Backend, testing, integration
+
+Full contributors list:
+👉 https://github.com/Eshwarnath24/Handlers/graphs/contributors
+
+🤝 Contributing
+
+Create a new branch
+
+Commit with clear messages
+
+Open a pull request
+
+📄 License
+
+This project is licensed under the MIT License.
