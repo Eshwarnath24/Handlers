@@ -25,24 +25,91 @@ const ROLES = [
   "Cloud Architect",
 ];
 
-const TECH_STACK = [
-  { name: "JavaScript", icon: "🟨" },
-  { name: "TypeScript", icon: "🔷" },
-  { name: "React", icon: "⚛️" },
-  { name: "Vue.js", icon: "💚" },
-  { name: "Angular", icon: "🔴" },
-  { name: "Node.js", icon: "💚" },
-  { name: "Python", icon: "🐍" },
-  { name: "Java", icon: "☕" },
-  { name: "Go", icon: "🔵" },
-  { name: "Rust", icon: "🦀" },
-  { name: "SQL", icon: "🗃️" },
-  { name: "MongoDB", icon: "🍃" },
-  { name: "Docker", icon: "🐳" },
-  { name: "Kubernetes", icon: "☸️" },
-  { name: "AWS", icon: "☁️" },
-  { name: "GraphQL", icon: "◈" },
-];
+const ROLE_TECH_MAP: Record<string, { name: string; icon: string }[]> = {
+  "Frontend Developer": [
+    { name: "HTML", icon: "📄" },
+    { name: "CSS", icon: "🎨" },
+    { name: "JavaScript", icon: "🟨" },
+    { name: "TypeScript", icon: "🔷" },
+    { name: "React", icon: "⚛️" },
+    { name: "Vue.js", icon: "💚" },
+    { name: "Angular", icon: "🔴" },
+    { name: "Tailwind", icon: "🌬️" },
+  ],
+  "Backend Developer": [
+    { name: "Node.js", icon: "💚" },
+    { name: "Express", icon: "📦" },
+    { name: "Python", icon: "🐍" },
+    { name: "Django", icon: "🌿" },
+    { name: "Java", icon: "☕" },
+    { name: "PostgreSQL", icon: "🐘" },
+    { name: "MongoDB", icon: "🍃" },
+    { name: "Redis", icon: "🔥" },
+  ],
+  "Full Stack Developer": [
+    { name: "React", icon: "⚛️" },
+    { name: "Node.js", icon: "💚" },
+    { name: "Express", icon: "📦" },
+    { name: "TypeScript", icon: "🔷" },
+    { name: "PostgreSQL", icon: "🐘" },
+    { name: "MongoDB", icon: "🍃" },
+    { name: "Docker", icon: "🐳" },
+    { name: "GraphQL", icon: "🔺" },
+  ],
+  "DevOps Engineer": [
+    { name: "Docker", icon: "🐳" },
+    { name: "Kubernetes", icon: "☸️" },
+    { name: "AWS", icon: "☁️" },
+    { name: "CI/CD", icon: "🔁" },
+    { name: "Terraform", icon: "📐" },
+    { name: "Linux", icon: "🐧" },
+    { name: "GitHub Actions", icon: "⚙️" },
+  ],
+  "Data Scientist": [
+    { name: "Python", icon: "🐍" },
+    { name: "Pandas", icon: "📊" },
+    { name: "NumPy", icon: "➗" },
+    { name: "Jupyter", icon: "📓" },
+    { name: "Scikit-Learn", icon: "🧠" },
+    { name: "SQL", icon: "🗃️" },
+  ],
+  "Machine Learning Engineer": [
+    { name: "Python", icon: "🐍" },
+    { name: "TensorFlow", icon: "🔶" },
+    { name: "PyTorch", icon: "🔥" },
+    { name: "MLflow", icon: "🚀" },
+    { name: "AWS Sagemaker", icon: "☁️" },
+    { name: "FastAPI", icon: "⚡" },
+  ],
+  "Mobile Developer": [
+    { name: "Flutter", icon: "💙" },
+    { name: "React Native", icon: "📱" },
+    { name: "Kotlin", icon: "🟣" },
+    { name: "Swift", icon: "🟠" },
+  ],
+  "QA Engineer": [
+    { name: "Selenium", icon: "🧪" },
+    { name: "Cypress", icon: "🌲" },
+    { name: "Jest", icon: "🃏" },
+    { name: "Playwright", icon: "🎭" },
+    { name: "Postman", icon: "📮" },
+  ],
+  "Security Engineer": [
+    { name: "Linux", icon: "🐧" },
+    { name: "Burp Suite", icon: "🕷️" },
+    { name: "Metasploit", icon: "💣" },
+    { name: "OWASP", icon: "🛡️" },
+    { name: "Python", icon: "🐍" },
+  ],
+  "Cloud Architect": [
+    { name: "AWS", icon: "☁️" },
+    { name: "Azure", icon: "🔷" },
+    { name: "GCP", icon: "🌎" },
+    { name: "Terraform", icon: "📐" },
+    { name: "Kubernetes", icon: "☸️" },
+    { name: "Docker", icon: "🐳" },
+  ],
+};
 
 interface StartPrepModalProps {
   open: boolean;
@@ -71,9 +138,7 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
     try {
       const res = await fetch("http://localhost:3000/api/quiz", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: selectedRole,
           level: "Junior",
@@ -81,19 +146,10 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("API failed");
-      }
-
+      if (!res.ok) throw new Error("API failed");
       const quiz = await res.json();
 
       setCurrentTestConfig({
-        role: selectedRole,
-        techStack: selectedTech,
-        questions: quiz,
-      });
-
-      console.log("SAVED TO CONTEXT:", {
         role: selectedRole,
         techStack: selectedTech,
         questions: quiz,
@@ -114,6 +170,8 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
     setSelectedTech([]);
     onOpenChange(false);
   };
+
+  const TECH_STACK = ROLE_TECH_MAP[selectedRole] || [];
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
@@ -140,7 +198,10 @@ export function StartPrepModal({ open, onOpenChange }: StartPrepModalProps) {
               {filteredRoles.map((role) => (
                 <button
                   key={role}
-                  onClick={() => setSelectedRole(role)}
+                  onClick={() => {
+                    setSelectedRole(role);
+                    setSelectedTech([]);
+                  }}
                   className={`w-full p-3 rounded-lg text-left transition-all duration-200 flex items-center justify-between ${
                     selectedRole === role
                       ? "bg-primary text-primary-foreground"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User, Lock, Save, X } from "lucide-react";
+import { User, Lock, Save, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // ✅ Keep local name in sync with auth user
   useEffect(() => {
@@ -46,8 +47,10 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
       return;
     }
 
+    setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/auth/profile", {
+      // ✅ FIX: URL changed from /auth/profile to /profile
+      const res = await fetch("http://localhost:3000/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +62,9 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Update failed");
 
+      // Update global context
       updateUser({ name: trimmed });
+      
       toast({
         title: "Profile updated",
         description: "Your name has been updated.",
@@ -71,6 +76,8 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
         description: err.message || "Failed to update profile",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,8 +100,10 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
       return;
     }
 
+    setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/auth/password", {
+      // ✅ FIX: URL changed from /auth/password to /profile/password
+      const res = await fetch("http://localhost:3000/profile/password", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -122,6 +131,8 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
         description: err.message || "Failed to update password",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -145,13 +156,15 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
+                    disabled={isLoading}
                   />
-                  <Button size="icon" onClick={handleSave}>
-                    <Save className="h-4 w-4" />
+                  <Button size="icon" onClick={handleSave} disabled={isLoading}>
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   </Button>
                   <Button
                     size="icon"
                     variant="outline"
+                    disabled={isLoading}
                     onClick={() => {
                       setName(user?.name || "");
                       setIsEditing(false);
@@ -162,7 +175,7 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
                 </div>
               ) : (
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
-                  <span>{user?.name}</span>
+                  <span>{user?.name || "No Name Set"}</span>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -196,6 +209,7 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -206,13 +220,15 @@ const UserProfileModal = ({ open, onOpenChange }: UserProfileModalProps) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
+                  disabled={isLoading}
                 />
               </div>
               <Button
                 onClick={handlePasswordChange}
-                disabled={!currentPassword || !newPassword}
+                disabled={!currentPassword || !newPassword || isLoading}
                 className="w-full"
               >
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Update Password
               </Button>
             </div>

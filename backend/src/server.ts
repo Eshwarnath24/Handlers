@@ -1,86 +1,64 @@
-<<<<<<< Updated upstream
 import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { pool } from "../db"; // ✅ Correct DB Import
+
+// Import routes
 import healthRouter from "./routes/health";
 import authRouter from "./routes/auth";
 import profileRouter from "./routes/profile";
-import cors from "cors";
-import dotenv from "dotenv";
-import quizRouter from "./routes/quiz";
+import quizRouter from "./routes/quiz"; // ✅ Added from your upstream update
 
-=======
-  
-  import express from "express";
-  import cors from "cors";
-  import { pool } from "../db"; // ✅ Added curly braces
->>>>>>> Stashed changes
-
-  // Import routes
-  import healthRouter from "./routes/health";
-  import authRouter from "./routes/auth";
-  import profileRouter from "./routes/profile";
-
-<<<<<<< Updated upstream
 dotenv.config();
 
+console.log("🔥 server.ts started");
+
 const app = express();
-app.use(cors());
+const PORT = 3000;
+
+// Middleware
+app.use(cors({ origin: "*" })); // Hackathon-friendly (allows all origins)
 app.use(express.json());
-=======
-  console.log("🔥 server.ts started");
->>>>>>> Stashed changes
 
-  const app = express();
-  const PORT = 3000;
+// Base Route
+app.get("/", (_req, res) => {
+  res.send("Backend is running 🚀");
+});
 
-  app.use(cors({ origin: "*" }));
-  app.use(express.json());
+// ✅ Test DB Route (Good for debugging)
+app.get("/test-db", async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.json({ message: "Success", time: result.rows[0].now });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
 
-  app.get("/", (_req, res) => {
-    res.send("Backend is running 🚀");
-  });
+// Mount Routes
+app.use("/health", healthRouter);
+app.use("/auth", authRouter);
+app.use("/profile", profileRouter);
+app.use("/api/quiz", quizRouter); // ✅ API prefix is good practice
 
-  // ✅ Test Route
-  app.get("/test-db", async (_req, res) => {
-    try {
-      const result = await pool.query("SELECT NOW()");
-      res.json({ message: "Success", time: result.rows[0].now });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json(err);
-    }
-  });
+// Database Connection Check
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error("❌ Database Connection Failed:", err);
+  } else {
+    console.log("✅ Database Connected at:", res.rows[0].now);
+  }
+});
 
-  app.use("/health", healthRouter);
-  app.use("/auth", authRouter);
-  app.use("/profile", profileRouter);
-
-  // DB Check
-  pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-      console.error("❌ Database Connection Failed:", err);
-    } else {
-      console.log("✅ Database Connected at:", res.rows[0].now);
-    }
-  });
-  process.on("SIGINT", async () => {
+// Graceful Shutdown
+process.on("SIGINT", async () => {
   console.log("🛑 Shutting down...");
   await pool.end();
   process.exit(0);
 });
 
-
-<<<<<<< Updated upstream
-
-
-app.use("/api/quiz", quizRouter);
-
-const PORT = 3000;
-
+// Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Backend running on http://localhost:${PORT}`);
 });
-=======
-  app.listen(PORT, () => {
-    console.log(`🚀 Backend running on http://localhost:${PORT}`);
-  });
->>>>>>> Stashed changes

@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import React, {
   createContext,
   useContext,
@@ -6,10 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-=======
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext'; // ✅ Import Auth Hook
->>>>>>> Stashed changes
+import { useAuth } from "./AuthContext"; // ✅ Connects to real Auth
 
 // Align generic User type if possible, or keep simple for UI
 interface User {
@@ -59,7 +55,7 @@ interface TestAttempt {
 
 interface AppContextType {
   user: User | null; // Derived from AuthContext
-  setUser: (user: User | null) => void; // Warning: Prefer useAuth().updateUser
+  setUser: (user: User | null) => void; // Deprecated: Warning wrapper
   isAuthenticated: boolean;
 
   testAttempts: TestAttempt[];
@@ -79,15 +75,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-<<<<<<< Updated upstream
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("truemetric_user");
-    return saved ? JSON.parse(saved) : null;
-  });
-=======
-  // ✅ LINKED: Get user from the real Auth source
+  // ✅ SOURCE OF TRUTH: Get user from the real Auth Context
   const { user: authUser, isAuthenticated } = useAuth();
->>>>>>> Stashed changes
 
   const [testAttempts, setTestAttempts] = useState<TestAttempt[]>(() => {
     const saved = localStorage.getItem("truemetric_attempts");
@@ -104,18 +93,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
-  useEffect(() => {
-<<<<<<< Updated upstream
-    localStorage.setItem("truemetric_user", JSON.stringify(user));
-  }, [user]);
-
+  // Persist test attempts
   useEffect(() => {
     localStorage.setItem("truemetric_attempts", JSON.stringify(testAttempts));
-=======
-    localStorage.setItem('truemetric_attempts', JSON.stringify(testAttempts));
->>>>>>> Stashed changes
   }, [testAttempts]);
 
+  // Handle Theme
   useEffect(() => {
     localStorage.setItem("truemetric_theme", theme);
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -138,12 +121,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-<<<<<<< Updated upstream
     <AppContext.Provider
       value={{
-        user,
-        setUser,
-        isAuthenticated: !!user,
+        // ✅ Map AuthContext user to AppContext user
+        user: authUser ? {
+          id: authUser.id?.toString() || "0",
+          email: authUser.email,
+          name: authUser.name || authUser.email.split('@')[0]
+        } : null,
+        isAuthenticated,
+        // Warning: Don't set user here, use login() in AuthContext
+        setUser: () => console.warn("Use useAuth().login() instead of setUser"),
+        
         testAttempts,
         addTestAttempt,
         currentTestConfig,
@@ -155,22 +144,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         resetTabSwitch,
       }}
     >
-=======
-    <AppContext.Provider value={{
-      user: authUser, // ✅ Derived from AuthContext
-      setUser: () => console.warn("Use useAuth().updateUser instead"),
-      isAuthenticated,
-      testAttempts,
-      addTestAttempt,
-      currentTestConfig,
-      setCurrentTestConfig,
-      theme,
-      toggleTheme,
-      tabSwitchCount,
-      incrementTabSwitch,
-      resetTabSwitch,
-    }}>
->>>>>>> Stashed changes
       {children}
     </AppContext.Provider>
   );
