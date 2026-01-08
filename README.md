@@ -1,128 +1,101 @@
-🚀 TrueMetric (Handlers)
+# 🚀 TrueMetric (Handlers)
 
-TrueMetric is an AI-driven interview evaluation and skill-gap bridging platform designed to help users identify weaknesses and systematically improve them for real technical interviews.
+**TrueMetric** is an AI-driven **interview evaluation and skill-gap bridging platform** designed to help users **identify weaknesses and systematically improve them** for real technical interviews.
 
-This repository is a monorepo containing:
+This repository is a **monorepo** containing:
+- Frontend (Bun-powered)
+- Backend (Bun-powered APIs)
+- Docker-based deployment setup
 
-Frontend (Bun-powered)
+---
 
-Backend (Bun-powered APIs)
-
-Docker-based deployment setup
-
-🎯 Problem Statement
+## 🎯 Problem Statement
 
 Most interview platforms:
+- ❌ Only test users
+- ❌ Don’t explain weaknesses
+- ❌ Use static questions
+- ❌ Encourage AI copy-paste learning
 
-❌ Only test users
+**TrueMetric focuses on improvement, not just evaluation.**
 
-❌ Don’t explain weaknesses
+---
 
-❌ Use static questions
+## 🧠 Interview Mode – Skill Gap Bridging (Core Feature)
 
-❌ Encourage AI copy-paste learning
-
-TrueMetric focuses on improvement, not just evaluation.
-
-🧠 Interview Mode – Skill Gap Bridging (Core Feature)
-What Interview Mode Does
-
-Interview Mode simulates real technical interviews and adapts dynamically based on user responses.
+### What Interview Mode Does
+Interview Mode simulates **real technical interviews** and adapts dynamically based on user responses.
 
 It evaluates:
+- Concept clarity
+- Depth of understanding
+- Partial knowledge
+- Consistency over time
 
-Concept clarity
+---
 
-Depth of understanding
+### 🔁 Skill Gap Bridging Workflow
 
-Partial knowledge
+1. **Interview Simulation**
+   - Concept-based, progressive questions
+   - Time-aware evaluation
 
-Consistency over time
+2. **Gap Detection**
+   - Identifies weak concepts
+   - Detects incomplete understanding
+   - Tracks performance patterns
 
-🔁 Skill Gap Bridging Workflow
+3. **Targeted Reinforcement**
+   - Focused follow-up questions
+   - Repeated testing on weak areas
+   - Adaptive difficulty tuning
 
-Interview Simulation
+4. **Re-Evaluation Loop**
+   - Measures improvement
+   - Gradually closes skill gaps
 
-Concept-based, progressive questions
+---
 
-Time-aware evaluation
+## ✨ Key Features
 
-Gap Detection
+- 🧠 Interview Mode with adaptive difficulty
+- 📉 Automatic skill-gap detection
+- 📈 Skill improvement tracking
+- 🔐 JWT-based authentication
+- ⚡ Fast Bun-powered backend
+- 🌐 API-first architecture
+- 🐳 Docker support
+- 🚫 Reduced AI-assisted cheating
 
-Identifies weak concepts
+---
 
-Detects incomplete understanding
+## 🏗️ Tech Stack
 
-Tracks performance patterns
+### Frontend
+- Bun
+- React
+- TypeScript
+- Tailwind CSS
 
-Targeted Reinforcement
+### Backend
+- Bun
+- Express.js
+- TypeScript
+- PostgreSQL
+- bcrypt + JWT
+- dotenv
 
-Focused follow-up questions
+### DevOps
+- Docker
+- Docker Compose
+- Vercel (Frontend)
+- Render / similar (Backend & DB)
 
-Repeated testing on weak areas
+---
 
-Adaptive difficulty tuning
+## 📁 Repository Structure
 
-Re-Evaluation Loop
-
-Measures improvement
-
-Gradually closes skill gaps
-
-✨ Key Features
-
-🧠 Interview Mode with adaptive difficulty
-
-📉 Automatic skill-gap detection
-
-📈 Skill improvement tracking
-
-🔐 JWT-based authentication
-
-⚡ Fast Bun-powered backend
-
-🌐 API-first architecture
-
-🐳 Docker support
-
-🚫 Reduced AI-assisted cheating
-
-🏗️ Tech Stack
-Frontend
-
-Bun
-
-React
-
-TypeScript
-
-Tailwind CSS
-
-Backend
-
-Bun
-
-Express.js
-
-TypeScript
-
-PostgreSQL
-
-bcrypt + JWT
-
-dotenv
-
-DevOps
-
-Docker
-
-Docker Compose
-
-Vercel (Frontend)
-
-Render / similar (Backend & DB)
-
-📁 Repository Structure
+```text
 Handlers/
 │
 ├── backend/
@@ -135,25 +108,21 @@ Handlers/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/   # Reusable UI components
-│   │   ├── context/      # Global app state
-│   │   ├── hooks/        # Custom React hooks
-│   │   ├── lib/          # Utilities & helpers
-│   │   └── pages/        # App pages
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   └── pages/
 │   │
 │   ├── public/
 │   ├── Dockerfile
 │   └── README.md
 │
-├── .env.local
-├── .env.docker
-├── docker-compose.yml
-├── LICENSE
-├── SECURITY.md
-└── README.md
+
+
+
 
 ⚙️ Environment Variables
-Backend (.env.local / .env.docker)
 PORT=5000
 DATABASE_URL=postgresql://username:password@host:port/dbname
 JWT_SECRET=your_secret_key
@@ -172,19 +141,10 @@ bun run dev
 🐳 Running with Docker
 docker-compose up --build
 
-
-This starts:
-
-Frontend
-
-Backend
-
-Database (if configured)
-
 🌐 Live Deployment
 
-Frontend (Vercel):
-👉 https://handlers-three.vercel.app
+Frontend:
+https://handlers-three.vercel.app
 
 🧪 Project Status
 
@@ -208,10 +168,10 @@ Gajula Eshwarnath – Backend, system design
 
 Shanmukha Gautam Pidaparthi – Core development
 
-Kurapati Venkata Lakshmi Narasimha Kushal - Backend, testing, integration
+Other contributors – Features, testing, integration
 
-Full contributors list:
-👉 https://github.com/Eshwarnath24/Handlers/graphs/contributors
+Contributors list:
+https://github.com/Eshwarnath24/Handlers/graphs/contributors
 
 🤝 Contributing
 
@@ -224,3 +184,9 @@ Open a pull request
 📄 License
 
 This project is licensed under the MIT License.
+├── .env.local
+├── .env.docker
+├── docker-compose.yml
+├── LICENSE
+├── SECURITY.md
+└── README.md
