@@ -39,62 +39,24 @@ Builds personalised upskilling suggestions
 
 🛠 Tech Stack
 Frontend (React + Bun)
-
 React + Vite
-
 TypeScript
-
 TailwindCSS + shadcn/ui
-
 Bun runtime
-
 Context API state management
-
 Lucide icons
 
 Backend (Bun + Express)
-
 Bun Runtime
-
 ExpressJS API
-
 PostgreSQL + pg driver
-
 JWT Authentication
-
 dotenv
 
 AI
-
 Grok API (custom prompt MCQ generation)
+<img width="730" height="722" alt="image" src="https://github.com/user-attachments/assets/a91fd783-75e3-4cc6-bba8-aa0ea7451b6c" />
 
-📁 Project Structure
-Handlers/
-├── backend/
-│   ├── src/
-│   │   ├── server.ts      → Express App
-│   │   ├── routes/
-│   │   │   ├── auth.ts
-│   │   │   ├── quiz.ts    → Calls Grok API & returns generated MCQs
-│   │   │   ├── profile.ts
-│   │   │   └── health.ts
-│   │   ├── middleware/
-│   │   │   └── auth.ts    → JWT verify
-│   │   ├── db.ts          → PostgreSQL client
-│   │   └── types/
-│   ├── .env
-│   ├── package.json
-│   └── index.ts
-└── frontend/
-    ├── src/pages/
-    │   ├── Auth.tsx
-    │   ├── Dashboard.tsx
-    │   ├── StartPrepModal.tsx (role→tech mapping fixed)
-    │   ├── Test.tsx (tab detection + MCQ & coding UI)
-    │   ├── Practice.tsx (unlocked after test)
-    │   └── Report.tsx
-    ├── components/* (UI & graphs)
-    └── AppContext/AuthContext
 
 🔧 Setup — Backend
 1️⃣ Install dependencies
