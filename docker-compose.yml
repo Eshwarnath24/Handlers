@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: my_app_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: my_app
+      POSTGRES_USER: myapp_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: my_app_backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: myapp_user
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: my_app
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: my_app_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:3000
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  pg_data:
