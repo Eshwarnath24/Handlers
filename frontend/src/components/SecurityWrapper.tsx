@@ -1,6 +1,6 @@
-import { useEffect, useCallback, ReactNode } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useApp } from '@/contexts/AppContext';
+import { useEffect, useCallback, ReactNode, useState, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useApp } from "@/contexts/AppContext";
 
 interface SecurityWrapperProps {
   children: ReactNode;
@@ -10,103 +10,177 @@ interface SecurityWrapperProps {
 export function SecurityWrapper({ children, enabled = true }: SecurityWrapperProps) {
   const { toast } = useToast();
   const { incrementTabSwitch, tabSwitchCount } = useApp();
+  const [isFullscreen, setIsFullscreen] = useState(
+    !!document.fullscreenElement
+  );
 
-  const showWarning = useCallback((message: string) => {
-    toast({
-      title: '⚠️ Warning',
-      description: message,
-      variant: 'destructive',
-    });
-  }, [toast]);
+  const lockRef = useRef(false);
+
+  const warn = useCallback(
+    (msg: string) => {
+      toast({
+        title: "⚠️ Warning",
+        description: msg,
+        variant: "destructive",
+      });
+    },
+    [toast]
+  );
+
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
 
   useEffect(() => {
     if (!enabled) return;
 
-    // Prevent copy
-    const handleCopy = (e: ClipboardEvent) => {
-      e.preventDefault();
-      showWarning('Copying is disabled during the test.');
-    };
-
-    // Prevent paste
-    const handlePaste = (e: ClipboardEvent) => {
-      e.preventDefault();
-      showWarning('Pasting is disabled during the test.');
-    };
-
-    // Prevent context menu
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      showWarning('Right-click is disabled during the test.');
-    };
-
-    // Prevent text selection
-    const handleSelectStart = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-      }
-    };
-
-    // Detect tab switch / window blur
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        incrementTabSwitch();
-        showWarning(`Tab switch detected! Warning ${tabSwitchCount + 1}/3`);
-      }
-    };
-
-    // Prevent keyboard shortcuts
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Prevent Ctrl+C, Ctrl+V, Ctrl+A, PrintScreen
-      if (
-        (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a')) ||
-        e.key === 'PrintScreen'
-      ) {
-        e.preventDefault();
-        showWarning('This keyboard shortcut is disabled during the test.');
-      }
-    };
-
-    // Request fullscreen
     const enterFullscreen = async () => {
-      try {
-        if (document.documentElement.requestFullscreen) {
+      if (!document.fullscreenElement) {
+        try {
           await document.documentElement.requestFullscreen();
-        }
-      } catch (err) {
-        console.log('Fullscreen not available');
+        } catch {}
       }
     };
 
-    // Add event listeners
-    document.addEventListener('copy', handleCopy);
-    document.addEventListener('paste', handlePaste);
-    document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('selectstart', handleSelectStart);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    document.addEventListener('keydown', handleKeyDown);
+    // protect against rapid repeated events
+    let localLock = false;
 
+    const handleViolation = () => {
+      if (localLock) return;
+      localLock = true;
+      setTimeout(() => (localLock = false), 800);
+    };
+
+    const handleVisibilityChange = () => {
+      // only act when document becomes hidden
+      if (!document.hidden) return;
+
+      handleViolation();
+      // increment shared counter
+      incrementTabSwitch();
+      const next = tabSwitchCount + 1;
+      const remaining = Math.max(0, 3 - next);
+
+      if (next === 1) {
+        setPopupMessage(`Do not switch tabs during the test. Attempts left: ${remaining}`);
+        setPopupOpen(true);
+      } else {
+        setPopupMessage(
+          `Do not exit fullscreen — please re-enter fullscreen to continue the test. Attempts left: ${remaining}`
+        );
+        setPopupOpen(true);
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    };
+
+    const handleWindowBlur = () => {
+      // some browsers fire blur instead of visibilitychange
+      if (document.hidden) return; // already handled by visibilitychange when hidden
+      handleViolation();
+      incrementTabSwitch();
+      const next = tabSwitchCount + 1;
+      const remaining = Math.max(0, 3 - next);
+      if (next === 1) {
+        setPopupMessage(`Do not switch tabs during the test. Attempts left: ${remaining}`);
+        setPopupOpen(true);
+      } else {
+        setPopupMessage(
+          `Do not exit fullscreen — please re-enter fullscreen to continue the test. Attempts left: ${remaining}`
+        );
+        setPopupOpen(true);
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // treat Escape as an attempt to exit fullscreen
+      if (e.key === "Escape" || e.key === "Esc") {
+        incrementTabSwitch();
+        const next = tabSwitchCount + 1;
+        const remaining = Math.max(0, 3 - next);
+        setPopupMessage(
+          `Do not exit fullscreen — please re-enter fullscreen to continue the test. Attempts left: ${remaining}`
+        );
+        setPopupOpen(true);
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    // ensure we start in fullscreen when the test mounts
     enterFullscreen();
 
-    // Cleanup
     return () => {
-      document.removeEventListener('copy', handleCopy);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('selectstart', handleSelectStart);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      document.removeEventListener('keydown', handleKeyDown);
-
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
-  }, [enabled, showWarning, incrementTabSwitch, tabSwitchCount]);
+  }, [enabled, incrementTabSwitch, warn, tabSwitchCount]);
+
+  const requestFullscreen = async () => {
+    try {
+      await document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } catch {}
+  };
 
   return (
-    <div className={enabled ? 'no-select' : ''}>
+    <div className={enabled ? "no-select" : ""}>
       {children}
+
+      {/* HARD BLOCK — user CANNOT interact unless fullscreen */}
+      {enabled && !isFullscreen && tabSwitchCount >= 2 && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/95 p-6">
+          <div className="max-w-xl text-center">
+            <h2 className="text-2xl font-semibold mb-3">
+              Fullscreen Required
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              You must stay in fullscreen mode to continue the test.
+              Tab switching is not allowed.
+            </p>
+            <button
+              onClick={requestFullscreen}
+              className="px-6 py-3 rounded-md bg-primary text-white"
+            >
+              Enter Fullscreen & Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Simple popup modal for warnings */}
+      {popupOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 p-6"
+        >
+          <div className="max-w-lg w-full bg-card p-6 rounded-lg shadow-lg text-left">
+            <h3 className="text-lg font-semibold mb-2">Attention</h3>
+            <p className="text-sm text-muted-foreground mb-4">Dont switch screens</p>
+            <div className="flex justify-end">
+              <button
+                className="px-4 py-2 rounded-md bg-primary text-white"
+                onClick={() => setPopupOpen(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

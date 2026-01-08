@@ -56,7 +56,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/report"
+                path="/report/:attemptId"
                 element={
                   <ProtectedRoute>
                     <Report />
