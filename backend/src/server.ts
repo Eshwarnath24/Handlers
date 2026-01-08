@@ -1,13 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { pool } from "../db"; // ✅ Correct DB Import
+import { pool } from "./db"; // ✅ FIXED: Points to src/db.ts (where your password is)
 
 // Import routes
 import healthRouter from "./routes/health";
 import authRouter from "./routes/auth";
 import profileRouter from "./routes/profile";
-import quizRouter from "./routes/quiz"; // ✅ Added from your upstream update
+import quizRouter from "./routes/quiz";
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(cors({ origin: "*" })); // Hackathon-friendly (allows all origins)
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // Base Route
@@ -25,7 +25,7 @@ app.get("/", (_req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// ✅ Test DB Route (Good for debugging)
+// Test DB Route
 app.get("/test-db", async (_req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -40,7 +40,7 @@ app.get("/test-db", async (_req, res) => {
 app.use("/health", healthRouter);
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
-app.use("/api/quiz", quizRouter); // ✅ API prefix is good practice
+app.use("/api/quiz", quizRouter);
 
 // Database Connection Check
 pool.query('SELECT NOW()', (err, res) => {

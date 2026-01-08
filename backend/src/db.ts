@@ -3,18 +3,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const isProduction = process.env.NODE_ENV === "production";
+console.log("🚀 STARTING DB CONNECTION..."); // If you don't see this, the file isn't saved.
 
-const connectionString = process.env.DATABASE_URL;
+const poolConfig = {
+  user: "myapp_user",
+  host: "localhost",
+  database: "my_hackathon_db",
+  password: "Kushal123", // ✅ HARDCODED: This cannot be undefined
+  port: 5432,
+  ssl: false,
+};
 
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not defined");
-}
+console.log("🔑 PASSWORD IS:", poolConfig.password);
 
-export const pool = new Pool({
-  connectionString,
-  // 🟢 FIX: Enable SSL for cloud databases (Render/Neon/Supabase)
-  ssl: isProduction
-    ? { rejectUnauthorized: false }
-    : false, 
-});
+export const pool = new Pool(poolConfig);
