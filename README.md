@@ -141,11 +141,6 @@ bun run dev
 🐳 Running with Docker
 docker-compose up --build
 
-🌐 Live Deployment
-
-Frontend:
-https://handlers-three.vercel.app
-
 🧪 Project Status
 
 ✅ Authentication implemented
