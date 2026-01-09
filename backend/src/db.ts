@@ -1,19 +1,15 @@
 import { Pool } from "pg";
-import dotenv from "dotenv";
 
-dotenv.config();
+const pool = new Pool({
+  host: process.env.DB_HOST, // Render provides this
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  // REQUIRED: Enable SSL for Render's production database
+  ssl: process.env.DB_HOST && process.env.DB_HOST !== "localhost"
+    ? { rejectUnauthorized: false }
+    : undefined, 
+});
 
-console.log("🚀 STARTING DB CONNECTION..."); // If you don't see this, the file isn't saved.
-
-const poolConfig = {
-  user: "myapp_user",
-  host: "localhost",
-  database: "my_hackathon_db",
-  password: "Kushal123", // ✅ HARDCODED: This cannot be undefined
-  port: 5432,
-  ssl: false,
-};
-
-console.log("🔑 PASSWORD IS:", poolConfig.password);
-
-export const pool = new Pool(poolConfig);
+export default pool;
